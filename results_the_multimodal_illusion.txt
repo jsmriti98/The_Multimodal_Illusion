@@ -1,0 +1,218 @@
+Section A
+
+IEEE-CIS shape: (590540, 434) | fraud rate: 0.035
+
+[tabular-only] PR-AUC=0.5363 | Recall@0.1%FPR=0.2040 | Cost/10k=139,296
+[tabular+text] PR-AUC=0.6003 | Recall@0.1%FPR=0.2998 | Cost/10k=122,546
+[tabular+device] PR-AUC=0.5678 | Recall@0.1%FPR=0.2553 | Cost/10k=130,336
+[full (tabular+text+device)] PR-AUC=0.6062 | Recall@0.1%FPR=0.2938 | Cost/10k=123,596
+
+Section B
+
+996 session file(s) found.
+
+Balabit session-level dataset: (487, 7)
+
+[Balabit behavioral branch (standalone)] PR-AUC=0.7249 | Recall@0.1%FPR=0.0000 | Cost/10k=2,380,952
+
+Section C
+
+DGraph nodes: 3700550 | labeled (fraud/normal) nodes: 1225601 | fraud rate among labeled: 0.0127
+
+[DGraph-Fin graph branch (standalone)] PR-AUC=0.0387 | Recall@0.1%FPR=0.0072 | Cost/10k=62,857
+
+Section D
+
+Balabit donor pool ready: True
+DGraph donor pool ready: True
+
+Seed 0 done.
+Seed 1 done.
+Seed 2 done.
+Seed 3 done.
+Seed 4 done.
+
+=== Full ablation matrix: mean ± std over 5 seeds ===
+tabular-only                 PR-AUC=0.5371±0.0054 | Recall@0.1%FPR=0.2089±0.0058 | Cost/10k=$138,441
+tabular+text                 PR-AUC=0.6017±0.0054 | Recall@0.1%FPR=0.3064±0.0075 | Cost/10k=$121,395
+tabular+device               PR-AUC=0.5695±0.0055 | Recall@0.1%FPR=0.2555±0.0121 | Cost/10k=$130,307
+tabular+behavioral           PR-AUC=0.9973±0.0004 | Recall@0.1%FPR=0.9839±0.0029 | Cost/10k=$2,866
+tabular+graph                PR-AUC=0.6474±0.0064 | Recall@0.1%FPR=0.3055±0.0098 | Cost/10k=$121,550
+full (tab+text+device)       PR-AUC=0.6083±0.0052 | Recall@0.1%FPR=0.3111±0.0061 | Cost/10k=$120,568
+full+behavioral              PR-AUC=0.9964±0.0007 | Recall@0.1%FPR=0.9791±0.0016 | Cost/10k=$3,699
+full+graph                   PR-AUC=0.6845±0.0042 | Recall@0.1%FPR=0.3614±0.0086 | Cost/10k=$111,776
+full+behavioral+graph        PR-AUC=0.9940±0.0011 | Recall@0.1%FPR=0.9668±0.0062 | Cost/10k=$5,859
+
+=== Negative control: random (label-agnostic) pairing, single seed ===
+tabular+behavioral           PR-AUC under RANDOM pairing = 0.5409 (compare to label-conditional mean reported above -- a large gap indicates leakage, not real signal).
+tabular+graph                PR-AUC under RANDOM pairing = 0.5434 (compare to label-conditional mean reported above -- a large gap indicates leakage, not real signal).
+full+behavioral              PR-AUC under RANDOM pairing = 0.6018 (compare to label-conditional mean reported above -- a large gap indicates leakage, not real signal).
+full+graph                   PR-AUC under RANDOM pairing = 0.6027 (compare to label-conditional mean reported above -- a large gap indicates leakage, not real signal).
+full+behavioral+graph        PR-AUC under RANDOM pairing = 0.6019 (compare to label-conditional mean reported above -- a large gap indicates leakage, not real signal).
+
+Section E
+
+--- Chronological split (train on earliest 75%, test on latest 25%) ---
+[full, temporal split] PR-AUC=0.4425 | Recall@0.1%FPR=0.1933 | Cost/10k=139,378
+
+--- Compare against random-split full model (from Section D, seed 0) ---
+Random-split PR-AUC (mean over seeds): 0.6083
+Temporal-split PR-AUC: 0.4425
+
+A materially lower temporal-split PR-AUC indicates the random-split number was optimistic due to concept drift / near-duplicate leakage across the random split boundary.
+
+Section F
+
+PR-AUC gain (full - tabular-only): mean=0.0724, 95% CI=[0.0668, 0.0779]
+Bootstrap one-sided p-value (H0: no improvement): 0.0000
+=> The improvement is statistically significant at the 95% level (CI excludes 0).
+
+
+Section G
+
+Derived 7 pseudo-months of 30 days each from TransactionDT span.
+[static, month 6] PR-AUC=0.5266 | Recall@0.1%FPR=0.1286 | Cost/10k=191,198
+[rolling-window, month 6] PR-AUC=0.5266 | Recall@0.1%FPR=0.1286 | Cost/10k=191,198
+[time-decayed weighting, month 6] PR-AUC=0.5459 | Recall@0.1%FPR=0.1535 | Cost/10k=185,736
+
+=== Drift-aware summary ===
+Static PR-AUC by month     : [0.5266]
+Rolling-window PR-AUC      : [0.5266]
+Time-decayed PR-AUC        : [0.5459]
+Mean lift, rolling vs static: +0.0000
+Mean lift, decay vs static  : +0.0192
+
+
+Section H
+
+--- Baseline: plain concat + availability flags (Section 2 MetaLearner) ---
+[baseline concat fusion] PR-AUC=0.6134 | Recall@0.1%FPR=0.3053 | Cost/10k=121,598
+
+--- Reliability-aware fusion ---
+[reliability-aware fusion] PR-AUC=0.4456 | Recall@0.1%FPR=0.2451 | Cost/10k=132,131
+
+--- Missing-modality adaptive router ---
+ModalityRouter: trained 1 pattern-specific model(s) out of 1 observed availability pattern(s); rest use the fallback model.
+[modality router] PR-AUC=0.6116 | Recall@0.1%FPR=0.3072 | Cost/10k=121,259
+
+
+Section I
+
+
+[LogisticRegression (early fusion)] PR-AUC=0.2571 | Recall@0.1%FPR=0.0511 | Cost/10k=166,065
+[RandomForest (early fusion)] PR-AUC=0.5204 | Recall@0.1%FPR=0.2683 | Cost/10k=128,067
+[XGBoost (early fusion)] PR-AUC=0.6028 | Recall@0.1%FPR=0.3062 | Cost/10k=121,429
+[Naive average late fusion (no meta-learner)] PR-AUC=0.5075 | Recall@0.1%FPR=0.1605 | Cost/10k=146,931
+[MetaLearner (this paper)] PR-AUC=0.6134 | Recall@0.1%FPR=0.3053 | Cost/10k=121,598
+
+
+=== Baseline comparison table ===
+LogisticRegression (early fusion)                       PR-AUC=0.2571  Recall@0.1%FPR=0.0511
+RandomForest (early fusion)                             PR-AUC=0.5204  Recall@0.1%FPR=0.2683
+XGBoost (early fusion)                                  PR-AUC=0.6028  Recall@0.1%FPR=0.3062
+Naive average late fusion                               PR-AUC=0.5075  Recall@0.1%FPR=0.1605
+This paper: MetaLearner (late fusion + availability flags) PR-AUC=0.6134  Recall@0.1%FPR=0.3053
+
+Section J
+
+Highest-risk transaction in eval batch (score=0.999) -- top reason codes:
+  + tabular_dim0  (SHAP=+6.0824)
+  + text_dim25  (SHAP=+0.3779)
+  + device_dim0  (SHAP=+0.3135)
+  - device_dim2  (SHAP=-0.2655)
+  + text_dim2  (SHAP=+0.2027)
+
+Text branch: top TF-IDF terms per leading SVD component (attention-weight stand-in):
+  Component 0: [' | ', '| ', ' |', 'gmai', 'gma', ' gma', ' gm', 'gm']
+  Component 1: ['oo.c', 'yaho', 'oo.', 'yah', 'hoo.', 'hoo', ' yah', ' ya']
+  Component 2: ['| ', ' |', ' | ', 'ho', 'om', 'oo.c', 'aho', 'yah']
+
+Section K
+
+[cross-modal attention fusion] PR-AUC=0.0820 | Recall@0.1%FPR=0.0087 | Cost/10k=173,477
+
+Mean cross-branch attention matrix (rows=query branch, cols=key branch):
+         device  tabular   text
+device    0.308    0.346  0.346
+tabular   0.334    0.332  0.334
+text      0.332    0.334  0.334
+
+Section L
+
+Training TorchSAGE (2-layer GraphSAGE via torch_geometric)...
+[GraphSAGE (torch_geometric)] PR-AUC=0.0239 | Recall@0.1%FPR=0.0028 | Cost/10k=63,133
+
+Compare: Section C hand-engineered graph branch (degree/neighbor-fraud-rate + XGBoost) vs. this section's message-passing GNN, same labeled test split.
+
+
+Section M
+
+[MetaLearner (Sec 2)] missing_rate=0%  PR-AUC=0.6134
+[ReliabilityGate (Sec H)] missing_rate=0%  PR-AUC=0.4456
+[ModalityRouter (Sec H)] missing_rate=0%  PR-AUC=0.6116
+[CrossModalAttentionFusion (Sec K)] missing_rate=0%  PR-AUC=0.0820
+
+[MetaLearner (Sec 2)] missing_rate=25%  PR-AUC=0.3926
+[ReliabilityGate (Sec H)] missing_rate=25%  PR-AUC=0.2254
+[ModalityRouter (Sec H)] missing_rate=25%  PR-AUC=0.3773
+[CrossModalAttentionFusion (Sec K)] missing_rate=25%  PR-AUC=0.0643
+
+[MetaLearner (Sec 2)] missing_rate=50%  PR-AUC=0.2350
+[ReliabilityGate (Sec H)] missing_rate=50%  PR-AUC=0.1750
+[ModalityRouter (Sec H)] missing_rate=50%  PR-AUC=0.2096
+[CrossModalAttentionFusion (Sec K)] missing_rate=50%  PR-AUC=0.0480
+
+[MetaLearner (Sec 2)] missing_rate=75%  PR-AUC=0.1281
+[ReliabilityGate (Sec H)] missing_rate=75%  PR-AUC=0.1289
+[ModalityRouter (Sec H)] missing_rate=75%  PR-AUC=0.1049
+[CrossModalAttentionFusion (Sec K)] missing_rate=75%  PR-AUC=0.0401
+
+
+=== Missing-modality rate sweep summary ===
+     MetaLearner (Sec 2)  ReliabilityGate (Sec H)  ModalityRouter (Sec H)  \
+0%                0.6134                   0.4456                  0.6116   
+25%               0.3926                   0.2254                  0.3773   
+50%               0.2350                   0.1750                  0.2096   
+75%               0.1281                   0.1289                  0.1049   
+
+     CrossModalAttentionFusion (Sec K)  
+0%                              0.0820  
+25%                             0.0643  
+50%                             0.0480  
+75%                             0.0401 
+
+
+\nDegradation from 0% -> 75% missing (lower drop = more robust):
+  MetaLearner (Sec 2)                    0.6134 -> 0.1281  (drop=0.4853)
+  ReliabilityGate (Sec H)                0.4456 -> 0.1289  (drop=0.3167)
+  ModalityRouter (Sec H)                 0.6116 -> 0.1049  (drop=0.5067)
+  CrossModalAttentionFusion (Sec K)      0.0820 -> 0.0401  (drop=0.0419)
+
+
+Section N
+
+Deep baselines trained on 40000 rows x 60 features (subsampled for CPU runtime; use full data with GPU for the paper-final numbers).
+[FT-Transformer] PR-AUC=0.0912 | Recall@0.1%FPR=0.0002 | Cost/10k=174,969
+[TabTransformer] PR-AUC=0.1781 | Recall@0.1%FPR=0.0523 | Cost/10k=165,862
+
+
+==> Paper-Ready CPU-Stabilized Pipeline Active on: cpu
+
+==> Extracting wide features...
+--- Running Deep Suite: Seed Iteration 0/4 ---
+    Seed 0 Complete | FT-PR-AUC: 0.0805 | Tab-PR-AUC: 0.2701
+--- Running Deep Suite: Seed Iteration 1/4 ---
+    Seed 1 Complete | FT-PR-AUC: 0.0909 | Tab-PR-AUC: 0.2848
+--- Running Deep Suite: Seed Iteration 2/4 ---
+    Seed 2 Complete | FT-PR-AUC: 0.0926 | Tab-PR-AUC: 0.2901
+--- Running Deep Suite: Seed Iteration 3/4 ---
+    Seed 3 Complete | FT-PR-AUC: 0.0898 | Tab-PR-AUC: 0.2886
+--- Running Deep Suite: Seed Iteration 4/4 ---
+    Seed 4 Complete | FT-PR-AUC: 0.0906 | Tab-PR-AUC: 0.2818
+
+============================================================
+=== SECTION N: FINAL STATISTICAL SUITE RESULTS ===
+============================================================
+FT-Transformer PR-AUC (5-seeds) : 0.0889 ± 0.0043
+TabTransformer PR-AUC (5-seeds) : 0.2831 ± 0.0071
+============================================================
